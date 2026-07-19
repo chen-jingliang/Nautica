@@ -1,5 +1,4 @@
 name: Proxy Scanner
-
 on:
   workflow_dispatch:
   schedule:
@@ -8,18 +7,22 @@ on:
 jobs:
   scanner:
     runs-on: ubuntu-latest
+    # 增加写入权限，允许默认 Token 提交并推送代码
+    permissions:
+      contents: write
     concurrency:
       group: proxy-scan
-
     steps:
       - uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.GIT_TOKEN }}
+        # 已移除缺失的自定义 GIT_TOKEN，这里会自动使用自带的 GITHUB_TOKEN
+
       - name: Use Bun
         uses: oven-sh/setup-bun@v2
+
       - name: Start Scan
         run: |
           bun install && bun run ./helper/proxyip.ts
+
       - name: Publish Result
         if: ${{ success() }}
         run: |
